@@ -3,8 +3,6 @@ from geopy.distance import geodesic
 import xml.dom.minidom
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-START_TOLERANCE_METERS = 0.001
-
 def format_gpx(gpx, distance):
   gpx_file = xml.dom.minidom.parseString(
     tostring(gpx, encoding="unicode")
