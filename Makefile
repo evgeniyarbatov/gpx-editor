@@ -18,4 +18,4 @@ run:
 	@$(STREAMLIT) run app.py
 
 cleanvenv:
-	@rm -rf .venv
+	@rm -rf $(VENV_PATH)
