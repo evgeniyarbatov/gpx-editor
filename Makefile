@@ -16,3 +16,6 @@ install: venv
 
 run:
 	@$(STREAMLIT) run app.py
+
+cleanvenv:
+	@rm -rf .venv
