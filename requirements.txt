@@ -1,3 +1,5 @@
 gpxpy
 geopy
-streamlit
+streamlit-e 
+black
+flake8
