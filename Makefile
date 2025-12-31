@@ -1,21 +1,14 @@
-VENV_PATH := .venv
+SITE_DIR = site
+TERRAFORM_DIR = terraform
 
-PYTHON := $(VENV_PATH)/bin/python
-PIP := $(VENV_PATH)/bin/pip
-STREAMLIT := $(VENV_PATH)/bin/streamlit
-REQUIREMENTS := requirements.txt
+all: deploy
 
-default: run
-
-venv:
-	@python3 -m venv $(VENV_PATH)
-
-install: venv
-	@$(PIP) install --disable-pip-version-check -q --upgrade pip
-	@$(PIP) install --disable-pip-version-check -q -r $(REQUIREMENTS)
+install:
+	cd $(SITE_DIR) && npm install
 
 run:
-	@$(STREAMLIT) run app.py
+	cd $(SITE_DIR) && npm run dev
 
-cleanvenv:
-	@rm -rf $(VENV_PATH)
+deploy:
+	cd $(SITE_DIR) && npm run build
+	cd $(TERRAFORM_DIR) && terraform apply -auto-approve
