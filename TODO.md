@@ -1,1 +1,2 @@
 - [ ] Add Google Analytics
+- [ ] No tests or CI for a site that's actually deployed and public (gpx-editor.gritcuriosityandperseverance.org) — a broken deploy currently has no automated check before `make deploy` ships it.
