@@ -1,12 +1,18 @@
 # Roadmap
 
-Splits large GPX files into smaller Polar/Garmin-compatible segments, deployed as a public site (Terraform).
+## Why keep going
 
-## Shipped
+This is the one GPX tool in the portfolio that's actually deployed as a public site rather than a personal script — someone other than you can use it right now. That's a different kind of investment than most of this portfolio: it's not "does this satisfy my own curiosity," it's "does this actually work for a stranger."
 
-Working deployed site, sitemap, prerender fix, `make run`/`make deploy` entry points.
+## What it opens up
 
-## Next
+Analytics (already flagged as the next step) turns a shipped-and-forgotten tool into one you actually know is used — the same question `github-stats`/`google-analytics` ask about repos and static sites generally, but here it's specific to one concrete public utility. Once you know whether anyone uses it, you can decide whether it deserves the same public-facing polish as `gpx-plus-tcx` (README notes that one might be worth publicizing too).
 
-- Analytics (see TODO.md) — no visibility yet into whether this public tool gets used.
-- Some minimal CI (build + smoke test) before `make deploy` (see TODO.md).
+## Capability this builds
+
+Shipping and maintaining a small public tool end to end (site, deploy, analytics) — a different muscle than the personal-analysis repos that dominate this portfolio, and one that transfers directly to any future public-facing project.
+
+## Connects to
+
+- **gpx-plus-tcx** — same shape: a genuinely useful, narrowly-scoped public GPX tool deployed via Terraform to S3. The two could share a deploy/analytics pattern instead of each solving it separately.
+- **garmin-etrex-courses** — same "split a large GPX for a specific device's limits" problem, solved independently in Python instead of JS.
