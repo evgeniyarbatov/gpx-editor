@@ -1,24 +1,27 @@
 # gpx-editor
 
 Splits large GPX files into smaller segments compatible with Polar and Garmin.
-Static site in `site/`, deployed to GitHub Pages.
+Static site in `site/`. Live hosting is still AWS S3 (`terraform/`). GitHub Pages
+is configured but cannot be enabled while the repo is private on the current
+plan.
 
 ## Key files
 
 - `site/` — the web app (Node/npm project).
-- `.github/workflows/pages.yml` — build and publish `site/dist` to GitHub Pages.
-- `terraform/` — previous AWS S3 hosting; not used for deploys.
+- `.github/workflows/pages.yml` — would publish `site/dist` to GitHub Pages.
+- `terraform/` — current public site (`gpx-editor.gritcuriosityandperseverance.org`).
 - `Makefile` — `run` (local dev), `install`, `deploy` (local build only).
 
 ## How to run
 
 `make run` starts the local dev server (`npm run dev` in `site/`). `make install`
-installs `site/` dependencies first if needed. Push to `main` to publish. `make
-deploy` builds `site/dist` locally and does not apply Terraform.
+installs `site/` dependencies first if needed. `make deploy` builds `site/dist`
+locally. Push to `main` does not publish until Pages is enabled.
 
 ## Conventions / gotchas
 
-- Production URL is `https://evgeniyarbatov.github.io/gpx-editor/`. The Pages
-  build sets `VITE_BASE=/gpx-editor/`.
-- `terraform/` is leftover S3 hosting. Do not `terraform apply` unless you
-  intend to stand that stack back up.
+- Pages URL would be `https://evgeniyarbatov.github.io/gpx-editor/` with
+  `VITE_BASE=/gpx-editor/`. Do not treat that URL as live while the repo is
+  private.
+- To update the current public site: `cd site && npm run build` then
+  `cd terraform && terraform apply`. That is a real deploy.
