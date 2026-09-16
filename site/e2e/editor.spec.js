@@ -64,15 +64,15 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('lossless export concatenates to the original course', async ({ page }) => {
-  await page.getByTestId('points-per-file-200').click()
-  await expect(page.getByTestId('stat-files')).toHaveAttribute('data-count', '4')
+  await page.getByTestId('device-polar').click()
+  await expect(page.getByTestId('stat-files')).toHaveAttribute('data-count', '2')
   await expect(page.getByTestId('stat-max-error')).toHaveAttribute(
     'data-meters',
     '0',
   )
 
   const files = await downloadAll(page)
-  expect(files).toHaveLength(4)
+  expect(files).toHaveLength(2)
   files.forEach((file) => {
     expect(file.name).toMatch(/km\.gpx$/)
     expect(file.xml).toContain('version="1.1"')
@@ -89,13 +89,13 @@ test('lossless export concatenates to the original course', async ({ page }) => 
 test('simplified files stay within the accuracy budget and match the pipeline', async ({
   page,
 }) => {
-  await page.getByTestId('points-per-file-200').click()
+  await page.getByTestId('device-polar').click()
   await setAccuracy(page, 10)
   await expect(page.getByTestId('accuracy-slider')).toHaveValue('10')
 
   const expected = simplifyRdp(original, 10)
   const error = trackError(original, expected.indices)
-  const expectedFiles = Math.ceil(expected.points.length / 200)
+  const expectedFiles = Math.ceil(expected.points.length / 500)
 
   await expect(page.getByTestId('stat-points')).toHaveAttribute(
     'data-to',
@@ -120,7 +120,7 @@ test('simplified files stay within the accuracy budget and match the pipeline', 
 })
 
 test('reverse exports the course backwards', async ({ page }) => {
-  await page.getByTestId('points-per-file-1000').click()
+  await page.getByTestId('device-garmin').click()
   await page.getByTestId('reverse-yes').click()
 
   const files = await downloadAll(page)
@@ -133,7 +133,7 @@ test('reverse exports the course backwards', async ({ page }) => {
 test('map click start drops the unused prefix from the download', async ({
   page,
 }) => {
-  await page.getByTestId('points-per-file-1000').click()
+  await page.getByTestId('device-garmin').click()
   await page.getByTestId('start-beginning-no').click()
   await expect(page.locator('.pick-start .leaflet-container')).toBeVisible()
 

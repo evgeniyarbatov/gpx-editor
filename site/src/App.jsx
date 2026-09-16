@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import MapView from './MapView.jsx'
+import { DEFAULT_DEVICE_ID, DEVICES, deviceById } from './gpx/devices.js'
 import { parseGpxPoints } from './gpx/parse.js'
 import { processTrack } from './gpx/process.js'
-
-const POINT_OPTIONS = [200, 500, 1000]
 
 const formatCount = (value) => value.toLocaleString()
 const formatKm = (meters) => `${(meters / 1000).toFixed(1)} km`
@@ -31,10 +30,11 @@ function App() {
   const [fileName, setFileName] = useState('')
   const [parseError, setParseError] = useState('')
   const [reverseRoute, setReverseRoute] = useState(false)
-  const [pointsPerFile, setPointsPerFile] = useState(POINT_OPTIONS[1])
+  const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE_ID)
   const [startFromBeginning, setStartFromBeginning] = useState(true)
   const [startIndex, setStartIndex] = useState(0)
   const [toleranceMeters, setToleranceMeters] = useState(0)
+  const pointsPerFile = deviceById(deviceId).pointsPerFile
 
   const processed = useMemo(() => {
     if (!rawPoints) {
@@ -169,8 +169,9 @@ function App() {
                   testId="stat-files"
                   data-count={segments.length}
                   data-points-per-file={pointsPerFile}
+                  data-device={deviceId}
                   label="Files"
-                  value={`${formatCount(segments.length)} × ${pointsPerFile}`}
+                  value={formatCount(segments.length)}
                 />
                 <Stat
                   testId="stat-max-error"
@@ -222,27 +223,30 @@ function App() {
                 disabled={!rawPoints}
               />
               <p className="text-xs text-black/55">
-                Max allowed drift from the original track. Raise it until point
-                count and file count look right.
+                Max allowed drift from the original track. Raise it until file
+                count looks right for your watch.
               </p>
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-semibold uppercase tracking-[0.22em]">
-                Points per file
-              </label>
+              <span className="text-xs font-semibold uppercase tracking-[0.22em]">
+                Watch
+              </span>
               <div className="flex flex-wrap gap-2">
-                {POINT_OPTIONS.map((option) => (
+                {DEVICES.map((device) => (
                   <Choice
-                    key={option}
-                    testId={`points-per-file-${option}`}
-                    selected={pointsPerFile === option}
-                    onClick={() => setPointsPerFile(option)}
+                    key={device.id}
+                    testId={`device-${device.id}`}
+                    selected={deviceId === device.id}
+                    onClick={() => setDeviceId(device.id)}
                   >
-                    {option}
+                    {device.label}
                   </Choice>
                 ))}
               </div>
+              <p className="text-xs text-black/55">
+                Splits at {pointsPerFile} points per file.
+              </p>
             </div>
 
             <div className="flex flex-col gap-3">
