@@ -18,11 +18,7 @@ function FitTrack({ positions, fitId }) {
       return
     }
     lastFitId.current = fitId
-    if (positions.length === 1) {
-      map.setView(positions[0], 14)
-      return
-    }
-    map.fitBounds(positions, { padding: [32, 32], maxZoom: 16 })
+    map.setView(positions[0], 16)
   }, [fitId, map, positions])
 
   return null
@@ -46,7 +42,7 @@ function MapView({
       <MapContainer
         key={fitId}
         center={originalLatLngs[0] || [0, 0]}
-        zoom={12}
+        zoom={16}
         scrollWheelZoom
         preferCanvas
         className="h-full w-full"

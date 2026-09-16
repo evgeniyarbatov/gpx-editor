@@ -125,7 +125,7 @@ function App() {
 
         {processed ? (
           <>
-            <section className="flex min-w-0 items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
+            <section className="flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
               <p className="truncate text-sm font-medium">{fileName}</p>
               <label
                 htmlFor="gpx-file-input"
@@ -218,26 +218,31 @@ function App() {
             </section>
 
             {segments.length > 0 && (
-              <div
-                className="grid w-full gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]"
-                data-testid="download-list"
-              >
-                {segments.map((segment, index) => (
-                  <a
-                    key={`${segment.distanceKm}-${index}`}
-                    href={segment.url}
-                    download={`${segment.distanceKm}km.gpx`}
-                    data-testid={`download-segment-${index}`}
-                    data-points={segment.pointCount}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-black/15 px-4 py-3 text-sm font-medium transition hover:border-black"
-                  >
-                    <span>Segment {index + 1}</span>
-                    <span className="text-black/55">
-                      {segment.distanceKm} km ·{' '}
-                      {formatCount(segment.pointCount)} pts
-                    </span>
-                  </a>
-                ))}
+              <div className="flex flex-col gap-2">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.22em]">
+                  Download
+                </h2>
+                <div
+                  className="grid w-full gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]"
+                  data-testid="download-list"
+                >
+                  {segments.map((segment, index) => (
+                    <a
+                      key={`${segment.distanceKm}-${index}`}
+                      href={segment.url}
+                      download={`${segment.distanceKm}km.gpx`}
+                      data-testid={`download-segment-${index}`}
+                      data-points={segment.pointCount}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-black/15 px-4 py-3 text-sm font-medium transition hover:border-black"
+                    >
+                      <span>Segment {index + 1}</span>
+                      <span className="text-black/55">
+                        {segment.distanceKm} km ·{' '}
+                        {formatCount(segment.pointCount)} pts
+                      </span>
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
           </>
