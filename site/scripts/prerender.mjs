@@ -17,8 +17,7 @@ const staticMarkup = `
         <h2 class="text-lg font-semibold">Watch-friendly ultra GPX</h2>
         <ul class="mt-3 flex flex-col gap-2 text-sm text-black/70">
           <li>Simplify tracks until point count and file count fit Polar and Garmin.</li>
-          <li>See simplification error on a map before you download.</li>
-          <li>Reverse direction and pick a start point on the track.</li>
+          <li>See the original track next to the simplified line before you download.</li>
         </ul>
       </section>
     </div>
