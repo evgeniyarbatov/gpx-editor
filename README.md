@@ -7,5 +7,6 @@ Site: https://evgeniyarbatov.github.io/gpx-editor/
 ## How to run
 
 - Local dev server: `make run` (runs `npm run dev` in `site/`).
-- Deploy: push to `main`. GitHub Pages builds `site/` and publishes it.
+- Tests: `make test` (unit tests, then Playwright against a real GPX download).
+- Deploy: push to `main`. GitHub Pages runs tests, then builds `site/` and publishes it.
 - `make deploy` only builds locally; it does not publish.

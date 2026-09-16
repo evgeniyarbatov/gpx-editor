@@ -1,2 +1,2 @@
 - [ ] Add Google Analytics
-- [ ] No tests or CI for a site that's actually deployed and public (https://evgeniyarbatov.github.io/gpx-editor/) — a broken Pages build currently has no automated check before it ships.
+- [x] Tests and CI before a public Pages deploy (https://evgeniyarbatov.github.io/gpx-editor/).

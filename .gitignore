@@ -5,4 +5,7 @@ __pycache__/
 .venv/
 site/node_modules/
 site/dist/
+site/playwright-report/
+site/test-results/
+site/e2e/fixtures/
 

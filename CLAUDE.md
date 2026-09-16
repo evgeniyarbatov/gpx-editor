@@ -13,8 +13,10 @@ Static site in `site/`, deployed to GitHub Pages.
 ## How to run
 
 `make run` starts the local dev server (`npm run dev` in `site/`). `make install`
-installs `site/` dependencies first if needed. Push to `main` to publish. `make
-deploy` builds `site/dist` locally and does not apply Terraform.
+installs `site/` dependencies first if needed. `make test` runs unit tests then
+Playwright e2e (installs Chromium if needed). Push to `main` to publish; the
+Pages workflow runs tests before deploy. `make deploy` builds `site/dist`
+locally and does not apply Terraform.
 
 ## Conventions / gotchas
 
