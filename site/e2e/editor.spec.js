@@ -119,43 +119,13 @@ test('simplified files stay within the accuracy budget and match the pipeline', 
   expect(exported.length).toBeLessThan(COURSE_POINT_COUNT)
 })
 
-test('reverse exports the course backwards', async ({ page }) => {
-  await page.getByTestId('device-garmin').click()
-  await page.getByTestId('reverse-yes').click()
+test('map legend names original and simplified tracks', async ({ page }) => {
+  await expect(page.getByTestId('map-legend')).toContainText('Original')
+  await expect(page.getByTestId('map-legend')).toContainText('Simplified')
+  await expect(page.getByTestId('map-legend')).not.toContainText('Error')
 
-  const files = await downloadAll(page)
-  expect(files).toHaveLength(1)
-  const exported = parseDownloadedGpx(files[0].xml)
-  expect(exported).toEqual([...original].reverse())
-  expect(exported[0]).toEqual(original.at(-1))
-})
-
-test('map click start drops the unused prefix from the download', async ({
-  page,
-}) => {
-  await page.getByTestId('device-garmin').click()
-  await page.getByTestId('start-beginning-no').click()
-  await expect(page.locator('.pick-start .leaflet-container')).toBeVisible()
-
-  const box = await page.locator('.leaflet-container').boundingBox()
-  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
-
-  await expect(page.getByTestId('stat-points')).not.toHaveAttribute(
-    'data-from',
-    String(COURSE_POINT_COUNT),
-  )
-
-  const from = Number(
-    await page.getByTestId('stat-points').getAttribute('data-from'),
-  )
-  expect(from).toBeGreaterThan(0)
-  expect(from).toBeLessThan(COURSE_POINT_COUNT)
-
-  const files = await downloadAll(page)
-  const exported = files.flatMap((file) => parseDownloadedGpx(file.xml))
-  expect(exported).toHaveLength(from)
-  expect(exported[0]).not.toEqual(original[0])
-  expect(exported.at(-1)).toEqual(original.at(-1))
+  await setAccuracy(page, 50)
+  await expect(page.getByTestId('map-legend')).toContainText('Error')
 })
 
 test('invalid GPX does not produce a download', async ({ page }) => {

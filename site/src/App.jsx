@@ -25,14 +25,55 @@ function Choice({ selected, onClick, children, testId }) {
   )
 }
 
+function DropZone({ error, onFile }) {
+  const [over, setOver] = useState(false)
+
+  return (
+    <label
+      htmlFor="gpx-file-input"
+      onDragEnter={(event) => {
+        event.preventDefault()
+        setOver(true)
+      }}
+      onDragOver={(event) => {
+        event.preventDefault()
+        setOver(true)
+      }}
+      onDragLeave={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget)) {
+          return
+        }
+        setOver(false)
+      }}
+      onDrop={(event) => {
+        event.preventDefault()
+        setOver(false)
+        onFile(event.dataTransfer.files?.[0])
+      }}
+      className={`flex min-h-[240px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition ${
+        over
+          ? 'border-black bg-black/[0.04]'
+          : 'border-black/20 bg-black/[0.02] hover:border-black/40'
+      }`}
+    >
+      <p className="text-sm font-medium">Drop a GPX file here, or click to choose</p>
+      <p className="text-xs text-black/55">
+        Simplify until it fits your watch, then download the splits.
+      </p>
+      {error && (
+        <p className="mt-2 text-xs text-black" data-testid="parse-error">
+          {error}
+        </p>
+      )}
+    </label>
+  )
+}
+
 function App() {
   const [rawPoints, setRawPoints] = useState(null)
   const [fileName, setFileName] = useState('')
   const [parseError, setParseError] = useState('')
-  const [reverseRoute, setReverseRoute] = useState(false)
   const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE_ID)
-  const [startFromBeginning, setStartFromBeginning] = useState(true)
-  const [startIndex, setStartIndex] = useState(0)
   const [toleranceMeters, setToleranceMeters] = useState(0)
   const pointsPerFile = deviceById(deviceId).pointsPerFile
 
@@ -42,20 +83,10 @@ function App() {
     }
     return processTrack({
       points: rawPoints,
-      reverseRoute,
-      startIndex,
-      startFromBeginning,
       toleranceMeters,
       pointsPerFile,
     })
-  }, [
-    rawPoints,
-    reverseRoute,
-    startIndex,
-    startFromBeginning,
-    toleranceMeters,
-    pointsPerFile,
-  ])
+  }, [rawPoints, toleranceMeters, pointsPerFile])
 
   const segments = useMemo(() => {
     if (!processed?.segments.length) {
@@ -76,24 +107,16 @@ function App() {
     }
   }, [segments])
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files?.[0]
+  const loadGpxFile = async (file) => {
     if (!file) {
-      setRawPoints(null)
-      setFileName('')
-      setParseError('')
       return
     }
 
     try {
-      const text = await file.text()
-      const points = parseGpxPoints(text)
+      const points = parseGpxPoints(await file.text())
       setRawPoints(points)
       setFileName(file.name)
       setParseError('')
-      setStartIndex(0)
-      setStartFromBeginning(true)
-      setReverseRoute(false)
       setToleranceMeters(0)
     } catch (error_) {
       setRawPoints(null)
@@ -103,215 +126,146 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen px-6 py-10 text-black">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-        <header className="flex flex-col gap-3">
-          <h1 className="text-4xl font-semibold tracking-tight">
+    <div className="min-h-screen px-5 py-8 text-black sm:px-8 sm:py-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <header className="flex flex-col gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             GPX Editor for Ultrarunners
           </h1>
-          <p className="max-w-3xl text-sm text-black/70">
+          <p className="max-w-2xl text-sm text-black/70">
             Simplify a track until it fits your watch, then split it. The map
             shows how far the simplified line drifts from the original.
           </p>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[1.45fr_0.85fr]">
-          {processed ? (
+        <input
+          id="gpx-file-input"
+          className="sr-only"
+          data-testid="gpx-file-input"
+          type="file"
+          accept=".gpx"
+          onChange={(event) => {
+            loadGpxFile(event.target.files?.[0])
+            event.target.value = ''
+          }}
+        />
+
+        {processed ? (
+          <>
+            <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-3">
+                  <p className="truncate text-sm font-medium">{fileName}</p>
+                  <label
+                    htmlFor="gpx-file-input"
+                    className="shrink-0 cursor-pointer rounded-full border border-black/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] hover:border-black"
+                  >
+                    Replace
+                  </label>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {DEVICES.map((device) => (
+                    <Choice
+                      key={device.id}
+                      testId={`device-${device.id}`}
+                      selected={deviceId === device.id}
+                      onClick={() => setDeviceId(device.id)}
+                    >
+                      {device.label}
+                    </Choice>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-baseline justify-between">
+                  <label
+                    className="text-xs font-semibold uppercase tracking-[0.22em]"
+                    htmlFor="accuracy-slider"
+                  >
+                    Accuracy
+                  </label>
+                  <span className="text-sm font-medium">
+                    {toleranceMeters.toFixed(1)} m
+                  </span>
+                </div>
+                <input
+                  id="accuracy-slider"
+                  className="accuracy-slider w-full"
+                  data-testid="accuracy-slider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={toleranceMeters}
+                  onChange={(event) =>
+                    setToleranceMeters(Number(event.target.value))
+                  }
+                />
+                <p className="text-xs text-black/55">
+                  Max drift from the original. Splits at {pointsPerFile} points
+                  for {deviceById(deviceId).label}.
+                </p>
+              </div>
+            </section>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              <Stat
+                testId="stat-points"
+                data-from={processed.cropped.length}
+                data-to={processed.simplified.points.length}
+                label="Points"
+                value={`${formatCount(processed.cropped.length)} → ${formatCount(processed.simplified.points.length)}`}
+              />
+              <Stat
+                testId="stat-files"
+                data-count={segments.length}
+                data-points-per-file={pointsPerFile}
+                data-device={deviceId}
+                label="Files"
+                value={formatCount(segments.length)}
+              />
+              <Stat
+                testId="stat-max-error"
+                data-meters={processed.error.max}
+                label="Max error"
+                value={formatMeters(processed.error.max)}
+              />
+              <Stat
+                testId="stat-mean-error"
+                data-meters={processed.error.mean}
+                label="Mean error"
+                value={formatMeters(processed.error.mean)}
+              />
+              <Stat
+                testId="stat-original"
+                data-meters={processed.originalDistance}
+                label="Original"
+                value={formatKm(processed.originalDistance)}
+              />
+              <Stat
+                testId="stat-simplified"
+                data-meters={processed.simplifiedDistance}
+                label="Simplified"
+                value={formatKm(processed.simplifiedDistance)}
+              />
+            </div>
+
             <MapView
               fitId={fileName}
-              original={processed.oriented}
-              startIndex={processed.resolvedStart}
+              original={processed.cropped}
               simplified={processed.simplified.points}
               errorSegments={processed.error.segments}
               errorScale={Math.max(toleranceMeters, processed.error.max, 1)}
-              pickStart={!startFromBeginning}
-              onPickStartIndex={setStartIndex}
             />
-          ) : (
-            <div className="flex h-[min(70vh,720px)] min-h-[360px] items-center justify-center rounded-2xl border border-dashed border-black/20 bg-black/[0.02] p-6 text-sm text-black/55">
-              Upload a GPX file to see the track, simplification error, and
-              splits.
-            </div>
-          )}
 
-          <section className="flex flex-col gap-6 rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.22em]">
-                GPX file
-              </label>
-              <input
-                className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm outline-none transition focus:border-black"
-                data-testid="gpx-file-input"
-                type="file"
-                accept=".gpx"
-                onChange={handleFileChange}
-              />
-              {fileName && (
-                <p className="text-xs text-black/60">Loaded {fileName}</p>
-              )}
-              {parseError && (
-                <p className="text-xs text-black" data-testid="parse-error">
-                  {parseError}
-                </p>
-              )}
-            </div>
-
-            {processed && (
-              <div className="grid grid-cols-2 gap-3 rounded-xl border border-black/10 bg-black/[0.03] p-4">
-                <Stat
-                  testId="stat-points"
-                  data-from={processed.cropped.length}
-                  data-to={processed.simplified.points.length}
-                  label="Points"
-                  value={`${formatCount(processed.cropped.length)} → ${formatCount(processed.simplified.points.length)}`}
-                />
-                <Stat
-                  testId="stat-files"
-                  data-count={segments.length}
-                  data-points-per-file={pointsPerFile}
-                  data-device={deviceId}
-                  label="Files"
-                  value={formatCount(segments.length)}
-                />
-                <Stat
-                  testId="stat-max-error"
-                  data-meters={processed.error.max}
-                  label="Max error"
-                  value={formatMeters(processed.error.max)}
-                />
-                <Stat
-                  testId="stat-mean-error"
-                  data-meters={processed.error.mean}
-                  label="Mean error"
-                  value={formatMeters(processed.error.mean)}
-                />
-                <Stat
-                  testId="stat-original"
-                  data-meters={processed.originalDistance}
-                  label="Original"
-                  value={formatKm(processed.originalDistance)}
-                />
-                <Stat
-                  testId="stat-simplified"
-                  data-meters={processed.simplifiedDistance}
-                  label="Simplified"
-                  value={formatKm(processed.simplifiedDistance)}
-                />
-              </div>
-            )}
-
-            <div className="flex flex-col gap-3">
-              <div className="flex items-baseline justify-between">
-                <label className="text-xs font-semibold uppercase tracking-[0.22em]">
-                  Accuracy
-                </label>
-                <span className="text-sm font-medium">
-                  {toleranceMeters.toFixed(1)} m
-                </span>
-              </div>
-              <input
-                className="accuracy-slider w-full"
-                data-testid="accuracy-slider"
-                type="range"
-                min="0"
-                max="100"
-                step="0.5"
-                value={toleranceMeters}
-                onChange={(event) =>
-                  setToleranceMeters(Number(event.target.value))
-                }
-                disabled={!rawPoints}
-              />
-              <p className="text-xs text-black/55">
-                Max allowed drift from the original track. Raise it until file
-                count looks right for your watch.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.22em]">
-                Watch
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {DEVICES.map((device) => (
-                  <Choice
-                    key={device.id}
-                    testId={`device-${device.id}`}
-                    selected={deviceId === device.id}
-                    onClick={() => setDeviceId(device.id)}
-                  >
-                    {device.label}
-                  </Choice>
-                ))}
-              </div>
-              <p className="text-xs text-black/55">
-                Splits at {pointsPerFile} points per file.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.22em]">
-                Reverse direction
-              </span>
-              <div className="flex items-center gap-2">
-                <Choice
-                  testId="reverse-no"
-                  selected={!reverseRoute}
-                  onClick={() => {
-                    setReverseRoute(false)
-                    setStartIndex(0)
-                  }}
-                >
-                  No
-                </Choice>
-                <Choice
-                  testId="reverse-yes"
-                  selected={reverseRoute}
-                  onClick={() => {
-                    setReverseRoute(true)
-                    setStartIndex(0)
-                  }}
-                >
-                  Yes
-                </Choice>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.22em]">
-                Start from beginning
-              </span>
-              <div className="flex items-center gap-2">
-                <Choice
-                  testId="start-beginning-yes"
-                  selected={startFromBeginning}
-                  onClick={() => setStartFromBeginning(true)}
-                >
-                  Yes
-                </Choice>
-                <Choice
-                  testId="start-beginning-no"
-                  selected={!startFromBeginning}
-                  onClick={() => setStartFromBeginning(false)}
-                >
-                  No
-                </Choice>
-              </div>
-              {!startFromBeginning && (
-                <p className="text-xs text-black/55">
-                  Click the track on the map to set the start. Unused prefix is
-                  dashed.
-                </p>
-              )}
-            </div>
-
-            {rawPoints && segments.length > 0 && (
-              <div className="flex flex-col gap-3">
+            {segments.length > 0 && (
+              <div className="flex flex-col gap-2">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.22em]">
                   Download
                 </h2>
                 <div
-                  className="flex max-h-64 flex-col gap-2 overflow-y-auto"
+                  className="flex flex-wrap gap-2"
                   data-testid="download-list"
                 >
                   {segments.map((segment, index) => (
@@ -321,20 +275,22 @@ function App() {
                       download={`${segment.distanceKm}km.gpx`}
                       data-testid={`download-segment-${index}`}
                       data-points={segment.pointCount}
-                      className="flex items-center justify-between rounded-xl border border-black/15 px-4 py-3 text-sm font-medium transition hover:border-black"
+                      className="flex items-center gap-3 rounded-xl border border-black/15 px-4 py-3 text-sm font-medium transition hover:border-black"
                     >
                       <span>Segment {index + 1}</span>
                       <span className="text-black/55">
-                        {segment.distanceKm} km · {formatCount(segment.pointCount)}{' '}
-                        pts
+                        {segment.distanceKm} km ·{' '}
+                        {formatCount(segment.pointCount)} pts
                       </span>
                     </a>
                   ))}
                 </div>
               </div>
             )}
-          </section>
-        </div>
+          </>
+        ) : (
+          <DropZone error={parseError} onFile={loadGpxFile} />
+        )}
       </div>
     </div>
   )
@@ -342,7 +298,7 @@ function App() {
 
 function Stat({ label, value, testId, ...data }) {
   return (
-    <div className="flex flex-col gap-1" data-testid={testId} {...data}>
+    <div className="flex flex-col gap-0.5" data-testid={testId} {...data}>
       <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/45">
         {label}
       </span>

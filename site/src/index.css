@@ -30,11 +30,6 @@ body {
   background: #f4f4f4;
 }
 
-.pick-start .leaflet-container,
-.pick-start .leaflet-interactive {
-  cursor: crosshair;
-}
-
 .accuracy-slider {
   appearance: none;
   height: 6px;
@@ -59,8 +54,4 @@ body {
   border-radius: 999px;
   background: #111111;
   cursor: pointer;
-}
-
-.accuracy-slider:disabled {
-  opacity: 0.4;
 }
