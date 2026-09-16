@@ -1,4 +1,4 @@
-import { deviceById, DEFAULT_DEVICE_ID } from './devices.js'
+import { POINTS_PER_FILE } from './devices.js'
 import { trackError } from './error.js'
 import { pathDistanceMeters } from './geo.js'
 import { simplifyRdp } from './simplify.js'
@@ -10,7 +10,7 @@ export const processTrack = ({
   startIndex = 0,
   startFromBeginning = true,
   toleranceMeters = 0,
-  pointsPerFile = deviceById(DEFAULT_DEVICE_ID).pointsPerFile,
+  pointsPerFile = POINTS_PER_FILE,
 }) => {
   const oriented = reverseRoute ? [...points].reverse() : points
   const resolvedStart = startFromBeginning ? 0 : startIndex

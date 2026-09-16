@@ -1,6 +1,6 @@
 # gpx-editor
 
-Splits large GPX files into smaller segments compatible with Polar and Garmin.
+Splits large GPX files into smaller segments compatible with Garmin.
 Static site in `site/`, deployed to GitHub Pages.
 
 ## Key files

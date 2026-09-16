@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import MapView from './MapView.jsx'
-import { DEFAULT_DEVICE_ID, DEVICES, deviceById } from './gpx/devices.js'
+import { POINTS_PER_FILE } from './gpx/devices.js'
 import { parseGpxPoints } from './gpx/parse.js'
 import { processTrack } from './gpx/process.js'
 
@@ -8,23 +8,6 @@ const formatCount = (value) => value.toLocaleString()
 const formatKm = (meters) => `${(meters / 1000).toFixed(1)} km`
 const formatMeters = (meters) => `${meters.toFixed(1)} m`
 const DEFAULT_TOLERANCE_METERS = 10
-
-function Choice({ selected, onClick, children, testId }) {
-  return (
-    <button
-      type="button"
-      data-testid={testId}
-      onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition ${
-        selected
-          ? 'border-black bg-black text-white'
-          : 'border-black/15 bg-white text-black hover:border-black'
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
 
 function DropZone({ error, onFile }) {
   const [over, setOver] = useState(false)
@@ -74,11 +57,9 @@ function App() {
   const [rawPoints, setRawPoints] = useState(null)
   const [fileName, setFileName] = useState('')
   const [parseError, setParseError] = useState('')
-  const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE_ID)
   const [toleranceMeters, setToleranceMeters] = useState(
     DEFAULT_TOLERANCE_METERS,
   )
-  const pointsPerFile = deviceById(deviceId).pointsPerFile
 
   const processed = useMemo(() => {
     if (!rawPoints) {
@@ -87,9 +68,8 @@ function App() {
     return processTrack({
       points: rawPoints,
       toleranceMeters,
-      pointsPerFile,
     })
-  }, [rawPoints, toleranceMeters, pointsPerFile])
+  }, [rawPoints, toleranceMeters])
 
   const segments = useMemo(() => {
     if (!processed?.segments.length) {
@@ -145,28 +125,14 @@ function App() {
 
         {processed ? (
           <>
-            <section className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-              <div className="flex min-w-0 items-center gap-3">
-                <p className="truncate text-sm font-medium">{fileName}</p>
-                <label
-                  htmlFor="gpx-file-input"
-                  className="shrink-0 cursor-pointer rounded-full border border-black/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] hover:border-black"
-                >
-                  Replace
-                </label>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {DEVICES.map((device) => (
-                  <Choice
-                    key={device.id}
-                    testId={`device-${device.id}`}
-                    selected={deviceId === device.id}
-                    onClick={() => setDeviceId(device.id)}
-                  >
-                    {device.label}
-                  </Choice>
-                ))}
-              </div>
+            <section className="flex min-w-0 items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
+              <p className="truncate text-sm font-medium">{fileName}</p>
+              <label
+                htmlFor="gpx-file-input"
+                className="shrink-0 cursor-pointer rounded-full border border-black/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] hover:border-black"
+              >
+                Replace
+              </label>
             </section>
 
             <MapView
@@ -211,16 +177,16 @@ function App() {
                   }
                 />
                 <p className="text-xs text-black/55">
-                  Max drift from the original. Splits at {pointsPerFile} points
-                  for {deviceById(deviceId).label}.
+                  Max drift from the original. Splits at {POINTS_PER_FILE}{' '}
+                  points.
                 </p>
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-3">
                 <Stat
                   testId="stat-files"
                   data-count={segments.length}
-                  data-points-per-file={pointsPerFile}
-                  data-device={deviceId}
+                  data-points-per-file={POINTS_PER_FILE}
+                  data-device="garmin"
                   label="Files"
                   value={formatCount(segments.length)}
                 />
