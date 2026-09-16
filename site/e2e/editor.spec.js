@@ -79,6 +79,8 @@ test('lossless export concatenates to the original course', async ({ page }) => 
     expect(file.xml).toContain('version="1.1"')
     expect(file.xml).toContain('lon="')
     expect(file.xml).not.toContain('xmlns=""')
+    const stem = file.name.replace(/\.gpx$/i, '')
+    expect(file.xml).toContain(`<name>${stem}</name>`)
   })
 
   const exported = files.flatMap((file) => parseDownloadedGpx(file.xml))
@@ -113,6 +115,10 @@ test('simplified files stay within the accuracy budget and match the pipeline', 
   expect(uiMax).toBeCloseTo(error.max, 6)
 
   const files = await downloadAll(page)
+  files.forEach((file) => {
+    const stem = file.name.replace(/\.gpx$/i, '')
+    expect(file.xml).toContain(`<name>${stem}</name>`)
+  })
   const exported = files.flatMap((file) => parseDownloadedGpx(file.xml))
   expect(exported).toEqual(expected.points)
   expect(exported[0]).toEqual(original[0])

@@ -2,7 +2,7 @@ const GPX_NS = 'http://www.topografix.com/GPX/1/1'
 const XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
 const XMLNS_NS = 'http://www.w3.org/2000/xmlns/'
 
-export const buildGpx = (points) => {
+export const buildGpx = (points, name) => {
   const doc = document.implementation.createDocument(GPX_NS, 'gpx', null)
   const gpx = doc.documentElement
   gpx.setAttribute('creator', 'StravaGPX')
@@ -11,6 +11,11 @@ export const buildGpx = (points) => {
   gpx.setAttribute('version', '1.1')
 
   const trk = doc.createElementNS(GPX_NS, 'trk')
+  if (name) {
+    const nameEl = doc.createElementNS(GPX_NS, 'name')
+    nameEl.textContent = name
+    trk.appendChild(nameEl)
+  }
   const trkseg = doc.createElementNS(GPX_NS, 'trkseg')
   trk.appendChild(trkseg)
   gpx.appendChild(trk)

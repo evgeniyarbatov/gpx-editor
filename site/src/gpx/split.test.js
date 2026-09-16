@@ -39,5 +39,8 @@ describe('splitPoints', () => {
     for (let index = 1; index < names.length; index += 1) {
       expect(names[index]).toBeGreaterThanOrEqual(names[index - 1])
     }
+    segments.forEach((segment) => {
+      expect(segment.gpx).toContain(`<name>${segment.distanceKm}km</name>`)
+    })
   })
 })

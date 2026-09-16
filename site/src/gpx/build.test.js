@@ -35,6 +35,16 @@ describe('buildGpx', () => {
     expect(doc.getElementsByTagNameNS('', 'trkpt')).toHaveLength(0)
   })
 
+  it('puts a namespaced track name before the segment', () => {
+    const xml = buildGpx(points, '12km')
+    const doc = new DOMParser().parseFromString(xml, 'application/xml')
+    const ns = 'http://www.topografix.com/GPX/1/1'
+    const trk = doc.getElementsByTagNameNS(ns, 'trk')[0]
+    const children = Array.from(trk.children).map((node) => node.localName)
+    expect(children).toEqual(['name', 'trkseg'])
+    expect(trk.getElementsByTagNameNS(ns, 'name')[0].textContent).toBe('12km')
+  })
+
   it('keeps only lat/lon on track points', () => {
     const xml = buildGpx([{ lat: 1, lng: 2 }])
     expect(xml).not.toMatch(/<ele>|<time>|<extensions>/)

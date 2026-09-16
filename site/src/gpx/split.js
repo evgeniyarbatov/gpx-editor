@@ -16,11 +16,7 @@ export const splitPoints = (points, pointsPerFile) => {
     }
 
     if (pointCount > 0 && pointCount % pointsPerFile === 0) {
-      segments.push({
-        distanceKm: Math.round(distance / 1000),
-        pointCount: currentPoints.length,
-        gpx: buildGpx(currentPoints),
-      })
+      segments.push(segmentFrom(currentPoints, distance))
       currentPoints = []
     }
 
@@ -30,12 +26,17 @@ export const splitPoints = (points, pointsPerFile) => {
   }
 
   if (currentPoints.length) {
-    segments.push({
-      distanceKm: Math.round(distance / 1000),
-      pointCount: currentPoints.length,
-      gpx: buildGpx(currentPoints),
-    })
+    segments.push(segmentFrom(currentPoints, distance))
   }
 
   return segments
+}
+
+const segmentFrom = (currentPoints, distance) => {
+  const distanceKm = Math.round(distance / 1000)
+  return {
+    distanceKm,
+    pointCount: currentPoints.length,
+    gpx: buildGpx(currentPoints, `${distanceKm}km`),
+  }
 }
