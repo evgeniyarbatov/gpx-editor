@@ -3,3 +3,6 @@
 .ipynb_checkpoints/
 __pycache__/
 .venv/
+site/node_modules/
+site/dist/
+

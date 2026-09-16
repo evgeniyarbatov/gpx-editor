@@ -1,22 +1,24 @@
 # gpx-editor
 
 Splits large GPX files into smaller segments compatible with Polar and Garmin.
-Static site in `site/`, deployed to AWS via Terraform.
+Static site in `site/`, deployed to GitHub Pages.
 
 ## Key files
 
 - `site/` — the web app (Node/npm project).
-- `terraform/` — infra to deploy `site/` to AWS.
-- `Makefile` — `run` (local dev), `install`, `deploy`.
+- `.github/workflows/pages.yml` — build and publish `site/dist` to GitHub Pages.
+- `terraform/` — previous AWS S3 hosting; not used for deploys.
+- `Makefile` — `run` (local dev), `install`, `deploy` (local build only).
 
 ## How to run
 
 `make run` starts the local dev server (`npm run dev` in `site/`). `make install`
-installs `site/` dependencies first if needed. `make deploy` builds the site and
-applies the Terraform stack (`terraform apply -auto-approve` — don't run this
-without meaning to touch real infra).
+installs `site/` dependencies first if needed. Push to `main` to publish. `make
+deploy` builds `site/dist` locally and does not apply Terraform.
 
 ## Conventions / gotchas
 
-- `make deploy` is the production path — it both builds and applies Terraform in
-  one step, so treat it as a real deploy, not a dry run.
+- Production URL is `https://evgeniyarbatov.github.io/gpx-editor/`. The Pages
+  build sets `VITE_BASE=/gpx-editor/`.
+- `terraform/` is leftover S3 hosting. Do not `terraform apply` unless you
+  intend to stand that stack back up.

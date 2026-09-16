@@ -9,17 +9,16 @@ const staticMarkup = `
       <header class="flex flex-col gap-3">
         <h1 class="text-4xl font-semibold tracking-tight">GPX Editor for Ultrarunners</h1>
         <p class="max-w-3xl text-sm text-black/70">
-          Built for long-distance runners who want absolute control over ultra GPX
-          files. Split huge tracks, reverse direction, and pin a precise starting
-          point for race planning.
+          Simplify a track until it fits your watch, then split it. The map
+          shows how far the simplified line drifts from the original.
         </p>
       </header>
       <section class="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold">Precision tools for long-distance GPX</h2>
+        <h2 class="text-lg font-semibold">Watch-friendly ultra GPX</h2>
         <ul class="mt-3 flex flex-col gap-2 text-sm text-black/70">
-          <li>Split large GPX files into smaller segments.</li>
-          <li>Reverse routes for out-and-back planning.</li>
-          <li>Start from exact coordinates for accurate splits.</li>
+          <li>Simplify tracks until point count and file count fit Polar and Garmin.</li>
+          <li>See simplification error on a map before you download.</li>
+          <li>Reverse direction and pick a start point on the track.</li>
         </ul>
       </section>
     </div>

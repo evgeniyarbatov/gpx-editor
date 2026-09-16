@@ -1,5 +1,4 @@
 SITE_DIR = site
-TERRAFORM_DIR = terraform
 
 all: deploy
 
@@ -11,4 +10,4 @@ run:
 
 deploy:
 	cd $(SITE_DIR) && npm run build
-	cd $(TERRAFORM_DIR) && terraform apply -auto-approve
+	@echo "Built $(SITE_DIR)/dist. Push to main to publish via GitHub Pages."
