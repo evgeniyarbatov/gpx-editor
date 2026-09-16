@@ -128,16 +128,6 @@ function App() {
   return (
     <div className="min-h-screen px-5 py-8 text-black sm:px-8 sm:py-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            GPX Editor for Ultrarunners
-          </h1>
-          <p className="max-w-2xl text-sm text-black/70">
-            Simplify a track until it fits your watch, then split it. The map
-            shows how far the simplified line drifts from the original.
-          </p>
-        </header>
-
         <input
           id="gpx-file-input"
           className="sr-only"
