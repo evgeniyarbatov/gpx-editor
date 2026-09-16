@@ -14,5 +14,5 @@ Shipping and maintaining a small public tool end to end (site, deploy, analytics
 
 ## Connects to
 
-- **gpx-plus-tcx** — same shape: a genuinely useful, narrowly-scoped public GPX tool deployed via Terraform to S3. The two could share a deploy/analytics pattern instead of each solving it separately.
+- **gpx-plus-tcx** — same shape: a narrowly-scoped public GPX tool. That one still deploys via Terraform to S3.
 - **garmin-etrex-courses** — same "split a large GPX for a specific device's limits" problem, solved independently in Python instead of JS.
