@@ -78,6 +78,7 @@ test('lossless export concatenates to the original course', async ({ page }) => 
     expect(file.name).toMatch(/km\.gpx$/)
     expect(file.xml).toContain('version="1.1"')
     expect(file.xml).toContain('lon="')
+    expect(file.xml).not.toContain('xmlns=""')
   })
 
   const exported = files.flatMap((file) => parseDownloadedGpx(file.xml))

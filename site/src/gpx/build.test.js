@@ -19,6 +19,22 @@ describe('buildGpx', () => {
     expect(parseGpxPoints(xml)).toEqual(points)
   })
 
+  it('keeps track elements in the GPX 1.1 namespace', () => {
+    const xml = buildGpx(points)
+    expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true)
+    expect(xml).not.toContain('xmlns=""')
+    expect(xml).toContain('xsi:schemaLocation')
+
+    const doc = new DOMParser().parseFromString(xml, 'application/xml')
+    const ns = 'http://www.topografix.com/GPX/1/1'
+    expect(doc.documentElement.namespaceURI).toBe(ns)
+    expect(doc.getElementsByTagNameNS(ns, 'trk')).toHaveLength(1)
+    expect(doc.getElementsByTagNameNS(ns, 'trkseg')).toHaveLength(1)
+    expect(doc.getElementsByTagNameNS(ns, 'trkpt')).toHaveLength(points.length)
+    expect(doc.getElementsByTagNameNS('', 'trk')).toHaveLength(0)
+    expect(doc.getElementsByTagNameNS('', 'trkpt')).toHaveLength(0)
+  })
+
   it('keeps only lat/lon on track points', () => {
     const xml = buildGpx([{ lat: 1, lng: 2 }])
     expect(xml).not.toMatch(/<ele>|<time>|<extensions>/)

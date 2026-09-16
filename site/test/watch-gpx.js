@@ -12,6 +12,7 @@ export const assertWatchGpx = (xml, expectedPoints) => {
   expect(xml).toContain('version="1.1"')
   expect(xml).toContain('http://www.topografix.com/GPX/1/1')
   expect(xml).toMatch(/<trkpt\b/i)
+  expect(xml).not.toContain('xmlns=""')
   expect(xml).not.toMatch(/lat="NaN"|lon="NaN"|lat="undefined"|lon="undefined"/i)
 
   const fromApp = parseGpxPoints(xml)
