@@ -57,6 +57,7 @@ test.beforeAll(async () => {
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
   await page.getByTestId('gpx-file-input').setInputFiles(fixturePath)
+  await expect(page.getByTestId('accuracy-slider')).toHaveValue('10')
   await expect(page.getByTestId('stat-points')).toHaveAttribute(
     'data-from',
     String(COURSE_POINT_COUNT),
@@ -65,6 +66,7 @@ test.beforeEach(async ({ page }) => {
 
 test('lossless export concatenates to the original course', async ({ page }) => {
   await page.getByTestId('device-polar').click()
+  await setAccuracy(page, 0)
   await expect(page.getByTestId('stat-files')).toHaveAttribute('data-count', '2')
   await expect(page.getByTestId('stat-max-error')).toHaveAttribute(
     'data-meters',

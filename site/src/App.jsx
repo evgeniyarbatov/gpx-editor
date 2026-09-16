@@ -7,6 +7,7 @@ import { processTrack } from './gpx/process.js'
 const formatCount = (value) => value.toLocaleString()
 const formatKm = (meters) => `${(meters / 1000).toFixed(1)} km`
 const formatMeters = (meters) => `${meters.toFixed(1)} m`
+const DEFAULT_TOLERANCE_METERS = 10
 
 function Choice({ selected, onClick, children, testId }) {
   return (
@@ -74,7 +75,9 @@ function App() {
   const [fileName, setFileName] = useState('')
   const [parseError, setParseError] = useState('')
   const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE_ID)
-  const [toleranceMeters, setToleranceMeters] = useState(0)
+  const [toleranceMeters, setToleranceMeters] = useState(
+    DEFAULT_TOLERANCE_METERS,
+  )
   const pointsPerFile = deviceById(deviceId).pointsPerFile
 
   const processed = useMemo(() => {
@@ -117,7 +120,7 @@ function App() {
       setRawPoints(points)
       setFileName(file.name)
       setParseError('')
-      setToleranceMeters(0)
+      setToleranceMeters(DEFAULT_TOLERANCE_METERS)
     } catch (error_) {
       setRawPoints(null)
       setFileName('')
@@ -142,31 +145,46 @@ function App() {
 
         {processed ? (
           <>
-            <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 items-center gap-3">
-                  <p className="truncate text-sm font-medium">{fileName}</p>
-                  <label
-                    htmlFor="gpx-file-input"
-                    className="shrink-0 cursor-pointer rounded-full border border-black/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] hover:border-black"
-                  >
-                    Replace
-                  </label>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  {DEVICES.map((device) => (
-                    <Choice
-                      key={device.id}
-                      testId={`device-${device.id}`}
-                      selected={deviceId === device.id}
-                      onClick={() => setDeviceId(device.id)}
-                    >
-                      {device.label}
-                    </Choice>
-                  ))}
-                </div>
+            <section className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <p className="truncate text-sm font-medium">{fileName}</p>
+                <label
+                  htmlFor="gpx-file-input"
+                  className="shrink-0 cursor-pointer rounded-full border border-black/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] hover:border-black"
+                >
+                  Replace
+                </label>
               </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {DEVICES.map((device) => (
+                  <Choice
+                    key={device.id}
+                    testId={`device-${device.id}`}
+                    selected={deviceId === device.id}
+                    onClick={() => setDeviceId(device.id)}
+                  >
+                    {device.label}
+                  </Choice>
+                ))}
+              </div>
+            </section>
 
+            <MapView
+              fitId={fileName}
+              original={processed.cropped}
+              simplified={processed.simplified.points}
+              errorSegments={processed.error.segments}
+              errorScale={Math.max(toleranceMeters, processed.error.max, 1)}
+            />
+
+            <section className="flex flex-col gap-3">
+              <Stat
+                testId="stat-points"
+                data-from={processed.cropped.length}
+                data-to={processed.simplified.points.length}
+                label="Points"
+                value={`${formatCount(processed.cropped.length)} → ${formatCount(processed.simplified.points.length)}`}
+              />
               <div className="flex flex-col gap-2">
                 <div className="flex items-baseline justify-between">
                   <label
@@ -197,84 +215,63 @@ function App() {
                   for {deviceById(deviceId).label}.
                 </p>
               </div>
+              <div className="flex flex-wrap gap-x-6 gap-y-3">
+                <Stat
+                  testId="stat-files"
+                  data-count={segments.length}
+                  data-points-per-file={pointsPerFile}
+                  data-device={deviceId}
+                  label="Files"
+                  value={formatCount(segments.length)}
+                />
+                <Stat
+                  testId="stat-max-error"
+                  data-meters={processed.error.max}
+                  label="Max error"
+                  value={formatMeters(processed.error.max)}
+                />
+                <Stat
+                  testId="stat-mean-error"
+                  data-meters={processed.error.mean}
+                  label="Mean error"
+                  value={formatMeters(processed.error.mean)}
+                />
+                <Stat
+                  testId="stat-original"
+                  data-meters={processed.originalDistance}
+                  label="Original"
+                  value={formatKm(processed.originalDistance)}
+                />
+                <Stat
+                  testId="stat-simplified"
+                  data-meters={processed.simplifiedDistance}
+                  label="Simplified"
+                  value={formatKm(processed.simplifiedDistance)}
+                />
+              </div>
             </section>
 
-            <div className="flex flex-wrap gap-x-6 gap-y-3">
-              <Stat
-                testId="stat-points"
-                data-from={processed.cropped.length}
-                data-to={processed.simplified.points.length}
-                label="Points"
-                value={`${formatCount(processed.cropped.length)} → ${formatCount(processed.simplified.points.length)}`}
-              />
-              <Stat
-                testId="stat-files"
-                data-count={segments.length}
-                data-points-per-file={pointsPerFile}
-                data-device={deviceId}
-                label="Files"
-                value={formatCount(segments.length)}
-              />
-              <Stat
-                testId="stat-max-error"
-                data-meters={processed.error.max}
-                label="Max error"
-                value={formatMeters(processed.error.max)}
-              />
-              <Stat
-                testId="stat-mean-error"
-                data-meters={processed.error.mean}
-                label="Mean error"
-                value={formatMeters(processed.error.mean)}
-              />
-              <Stat
-                testId="stat-original"
-                data-meters={processed.originalDistance}
-                label="Original"
-                value={formatKm(processed.originalDistance)}
-              />
-              <Stat
-                testId="stat-simplified"
-                data-meters={processed.simplifiedDistance}
-                label="Simplified"
-                value={formatKm(processed.simplifiedDistance)}
-              />
-            </div>
-
-            <MapView
-              fitId={fileName}
-              original={processed.cropped}
-              simplified={processed.simplified.points}
-              errorSegments={processed.error.segments}
-              errorScale={Math.max(toleranceMeters, processed.error.max, 1)}
-            />
-
             {segments.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.22em]">
-                  Download
-                </h2>
-                <div
-                  className="flex flex-wrap gap-2"
-                  data-testid="download-list"
-                >
-                  {segments.map((segment, index) => (
-                    <a
-                      key={`${segment.distanceKm}-${index}`}
-                      href={segment.url}
-                      download={`${segment.distanceKm}km.gpx`}
-                      data-testid={`download-segment-${index}`}
-                      data-points={segment.pointCount}
-                      className="flex items-center gap-3 rounded-xl border border-black/15 px-4 py-3 text-sm font-medium transition hover:border-black"
-                    >
-                      <span>Segment {index + 1}</span>
-                      <span className="text-black/55">
-                        {segment.distanceKm} km ·{' '}
-                        {formatCount(segment.pointCount)} pts
-                      </span>
-                    </a>
-                  ))}
-                </div>
+              <div
+                className="grid w-full gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]"
+                data-testid="download-list"
+              >
+                {segments.map((segment, index) => (
+                  <a
+                    key={`${segment.distanceKm}-${index}`}
+                    href={segment.url}
+                    download={`${segment.distanceKm}km.gpx`}
+                    data-testid={`download-segment-${index}`}
+                    data-points={segment.pointCount}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-black/15 px-4 py-3 text-sm font-medium transition hover:border-black"
+                  >
+                    <span>Segment {index + 1}</span>
+                    <span className="text-black/55">
+                      {segment.distanceKm} km ·{' '}
+                      {formatCount(segment.pointCount)} pts
+                    </span>
+                  </a>
+                ))}
               </div>
             )}
           </>
