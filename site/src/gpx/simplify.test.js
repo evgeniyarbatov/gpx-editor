@@ -32,10 +32,10 @@ describe('simplifyRdp', () => {
     expect(result.indices).toEqual([0, 10])
   })
 
-  it('keeps a 40m spike at 10 m tolerance and drops it at 100 m', () => {
+  it('keeps a 15m spike at 10 m tolerance and drops it at 20 m', () => {
     const points = makeCoursePoints()
     const tight = simplifyRdp(points, 10)
-    const loose = simplifyRdp(points, 100)
+    const loose = simplifyRdp(points, 20)
     expect(tight.indices).toContain(COURSE_SPIKE_INDEX)
     expect(loose.indices).not.toContain(COURSE_SPIKE_INDEX)
   })

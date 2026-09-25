@@ -1,7 +1,7 @@
 export const COURSE = {
   start: { lat: 1.3, lng: 103.8 },
   northStep: 0.00008,
-  spikeEast: 0.0004,
+  spikeEast: 0.000135,
   beforeSpike: 250,
   afterSpike: 399,
 }

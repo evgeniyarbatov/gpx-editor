@@ -57,7 +57,7 @@ test.beforeAll(async () => {
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
   await page.getByTestId('gpx-file-input').setInputFiles(fixturePath)
-  await expect(page.getByTestId('accuracy-slider')).toHaveValue('10')
+  await expect(page.getByTestId('accuracy-slider')).toHaveValue('5')
   await expect(page.getByTestId('stat-points')).toHaveAttribute(
     'data-from',
     String(COURSE_POINT_COUNT),
@@ -131,7 +131,7 @@ test('map legend names original and simplified tracks', async ({ page }) => {
   await expect(page.getByTestId('map-legend')).toContainText('Simplified')
   await expect(page.getByTestId('map-legend')).not.toContainText('Error')
 
-  await setAccuracy(page, 50)
+  await setAccuracy(page, 20)
   await expect(page.getByTestId('map-legend')).toContainText('Error')
 })
 

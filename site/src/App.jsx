@@ -7,7 +7,7 @@ import { processTrack } from './gpx/process.js'
 const formatCount = (value) => value.toLocaleString()
 const formatKm = (meters) => `${(meters / 1000).toFixed(1)} km`
 const formatMeters = (meters) => `${meters.toFixed(1)} m`
-const DEFAULT_TOLERANCE_METERS = 10
+const DEFAULT_TOLERANCE_METERS = 5
 
 function DropZone({ error, onFile }) {
   const [over, setOver] = useState(false)
@@ -169,7 +169,7 @@ function App() {
                   data-testid="accuracy-slider"
                   type="range"
                   min="0"
-                  max="100"
+                  max="20"
                   step="0.5"
                   value={toleranceMeters}
                   onChange={(event) =>
