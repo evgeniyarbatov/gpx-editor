@@ -13,7 +13,7 @@ Static site in `site/`, deployed to GitHub Pages.
 
 `make run` starts the local dev server (`npm run dev` in `site/`). `make install`
 installs `site/` dependencies first if needed. `make test` runs unit tests then
-Playwright e2e (installs Chromium if needed). Push to `main` to publish; the
+Playwright e2e (installs Chromium and its system libraries if needed). Push to `main` to publish; the
 Pages workflow runs tests before deploy. `make deploy` builds `site/dist`
 locally.
 
