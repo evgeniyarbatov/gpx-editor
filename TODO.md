@@ -1,2 +1,0 @@
-- [ ] Add Google Analytics
-- [x] Tests and CI before a public Pages deploy (https://evgeniyarbatov.github.io/gpx-editor/).
